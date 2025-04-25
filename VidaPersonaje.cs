@@ -1,36 +1,57 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // Importar el namespace de TextMeshPro
 
 public class VidaPersonaje : MonoBehaviour
 {
+    // Variables públicas
     public float maxHealth = 100f; // Vida máxima
     public float currentHealth;   // Vida actual
-    public Slider healthSlider;   // Barra de vida en el UI. Parte de Nati Natasha :3
+    public Slider healthSlider;   // Barra de vida en el UI
+    public Image fillImage;       // Imagen de relleno (Fill Area)
+    public Gradient healthGradient; // Gradiente de color para la vida
+    public TextMeshProUGUI healthText; // Texto para mostrar la vida actual con TextMeshPro
+    public Animator animator;     // Animador para las animaciones
 
     void Start()
     {
-        // Inicializar vida
+        // Inicializar valores de vida
         currentHealth = maxHealth;
+
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
-            healthSlider.value = currentHealth;
+            healthSlider.value = currentHealth; // Barra comienza llena
         }
+
+        // Configurar el color inicial del relleno
+        if (fillImage != null && healthGradient != null)
+        {
+            fillImage.color = healthGradient.Evaluate(1f); // Vida completa inicial
+        }
+
+        // Actualizar el texto de vida
+        UpdateHealthUI();
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamagePlayer(float damage)
     {
-        // Reducir salud
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        if (healthSlider != null)
+        if (damage <= 0)
         {
-            healthSlider.value = currentHealth; // Actualizar barra de vida
+            Debug.LogWarning("El daño debe ser mayor que 0.");
+            return;
         }
 
-        Debug.Log($"Jugador recibió {damage} de daño. Vida restante: {currentHealth}");
+        // Reducir vida instantáneamente
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Limitar entre 0 y vida máxima
 
+        Debug.Log($"Jugador recibió {damage} de daño. Vida actual: {currentHealth}");
+
+        // Actualizar la barra de vida, el color y el texto
+        UpdateHealthUI();
+
+        // Verificar si la vida llegó a 0
         if (currentHealth <= 0)
         {
             Die();
@@ -39,31 +60,50 @@ public class VidaPersonaje : MonoBehaviour
 
     public void Heal(float amount)
     {
-        // Incrementar salud
-        currentHealth += amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        if (healthSlider != null)
+        if (amount <= 0)
         {
-            healthSlider.value = currentHealth; // Actualizar barra de vida
+            Debug.LogWarning("La cantidad de curación debe ser mayor que 0.");
+            return;
         }
+
+        // Incrementar vida instantáneamente
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Limitar entre 0 y vida máxima
 
         Debug.Log($"Jugador se curó {amount} puntos. Vida actual: {currentHealth}");
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log($"El jugador ha tocado: {other.name}");
 
-        if (other.CompareTag("Enemy")) // Verifica si es un enemigo
+        // Actualizar la barra de vida, el color y el texto
+        UpdateHealthUI();
+    }
+
+    private void UpdateHealthUI()
+    {
+        if (healthSlider != null)
         {
-            Debug.Log("El jugador fue golpeado por un enemigo.");
-            TakeDamage(10f); // Aplicar 10 de daño (ajusta según sea necesario)
+            healthSlider.value = currentHealth; // Actualizar la barra de vida
+        }
+
+        if (fillImage != null && healthGradient != null)
+        {
+            float normalizedHealth = currentHealth / maxHealth; // Escalar entre 0 y 1
+            fillImage.color = healthGradient.Evaluate(normalizedHealth); // Actualizar color según vida
+        }
+
+        if (healthText != null)
+        {
+            healthText.text = $"{currentHealth}/{maxHealth}"; // Mostrar vida actual como texto
         }
     }
+
     private void Die()
     {
         Debug.Log("El jugador ha muerto.");
-        Destroy(gameObject);
-        // Aquí puedes añadir lógica para reiniciar el nivel o mostrar un menú de muerte
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Muerte"); // Activar animación de muerte
+        }
+
+        Destroy(gameObject); // Eliminar al jugador
     }
 }
