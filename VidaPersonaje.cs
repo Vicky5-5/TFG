@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro; // Importar el namespace de TextMeshPro
 
 public class VidaPersonaje : MonoBehaviour
@@ -12,6 +13,7 @@ public class VidaPersonaje : MonoBehaviour
     public Gradient healthGradient; // Gradiente de color para la vida
     public TextMeshProUGUI healthText; // Texto para mostrar la vida actual con TextMeshPro
     public Animator animator;     // Animador para las animaciones
+    public static bool nivel1;
 
     void Start()
     {
@@ -58,25 +60,7 @@ public class VidaPersonaje : MonoBehaviour
         }
     }
 
-    public void Heal(float amount)
-    {
-        if (amount <= 0)
-        {
-            Debug.LogWarning("La cantidad de curación debe ser mayor que 0.");
-            return;
-        }
-
-        // Incrementar vida instantáneamente
-        currentHealth += amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Limitar entre 0 y vida máxima
-
-        Debug.Log($"Jugador se curó {amount} puntos. Vida actual: {currentHealth}");
-
-        // Actualizar la barra de vida, el color y el texto
-        UpdateHealthUI();
-    }
-
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (healthSlider != null)
         {
@@ -104,6 +88,16 @@ public class VidaPersonaje : MonoBehaviour
             animator.SetTrigger("Muerte"); // Activar animación de muerte
         }
 
+        if (SceneManager.GetActiveScene().name.Equals("Nivel1"))
+        {
+            nivel1 = true;
+        }
+        else
+        {
+            nivel1 = false;
+        }
+
+        SceneManager.LoadScene("Scenes/Muerte");
         Destroy(gameObject); // Eliminar al jugador
     }
 }

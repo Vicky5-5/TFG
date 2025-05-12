@@ -19,7 +19,7 @@ public class LoadingManager : MonoBehaviour
     {
         yield return new WaitForSeconds(fakeLoadDelay); // Retraso inicial antes de la carga
 
-        AsyncOperation operation = SceneManager.LoadSceneAsync("Scenes/Nueva Escena");
+        AsyncOperation operation = SceneManager.LoadSceneAsync("Scenes/Tuto");
         operation.allowSceneActivation = false; // Impedir activación automática de la escena
 
         float simulatedProgress = 0f; // Progreso simulado inicial

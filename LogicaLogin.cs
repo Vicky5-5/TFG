@@ -1,25 +1,25 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using MySql.Data.MySqlClient;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
-using System; // Para manejar escenas
+using System;
+using System.Text.RegularExpressions; 
 
 public class Logica : MonoBehaviour
 {
     EventSystem Syst;
+    public GameObject CamposVacios;
+    public Button ReintentarCampos;
+    public Button ReintentarUsuario;
+    public GameObject UsuarioIncorrecto;
     public Selectable usuario;
     public Button borrar;
-    public TMP_InputField[] inputFields; // Usamos TMP_InputField para TextMeshPro
-    public TMP_InputField contraseña;
-    public TMP_InputField usuarioIntroducido; // Campo de texto para el usuario
-    public Button enviar; // Botón de enviar
-
-    // Slider para la barra de vida
-    public Slider barraDeVida;
-    public float vidaActual;
-    public float vidaMaxima = 100f;
+    public TMP_InputField[] inputFields; 
+    public TMP_InputField contrasenia;
+    public TMP_InputField usuarioIntroducido; 
+    public Button enviar; 
 
     private string connectionString;
     private MySqlConnection Conexion;
@@ -29,29 +29,46 @@ public class Logica : MonoBehaviour
     {
         Syst = EventSystem.current;
 
+        CamposVacios.SetActive(false);
+        UsuarioIncorrecto.SetActive(false);
+
         usuario.Select();
 
-        if (contraseña != null)
+
+        if (contrasenia.text != null)
         {
-            contraseña.contentType = TMP_InputField.ContentType.Password;
-            contraseña.ForceLabelUpdate(); // Asegúrate de que la configuración se aplique de inmediato
+            contrasenia.contentType = TMP_InputField.ContentType.Password;
+            contrasenia.ForceLabelUpdate(); // Fuerza el formato al instante
         }
 
-        // Configurar la barra de vida
-        if (barraDeVida != null)
-        {
-            barraDeVida.maxValue = vidaMaxima;
-            barraDeVida.value = vidaActual; // Establecer el valor inicial
-        }
+        // Detecta en tiempo real lo que introduce el usuario y se lo transmite a la funcion ValidarEntrada
+        usuarioIntroducido.onValueChanged.AddListener(delegate { ValidarEntrada(usuarioIntroducido); });
+        contrasenia.onValueChanged.AddListener(delegate { ValidarEntrada(contrasenia); });
 
-        // Agregar listeners a los botones
+
+
+        // Agregamos funcionalidad a los botones
         borrar.onClick.AddListener(LimpiarCampos);
         enviar.onClick.AddListener(ComprobarDatos);
+        ReintentarCampos.onClick.AddListener(VolverLogin);
+        ReintentarUsuario.onClick.AddListener(VolverLogin);
+
+    }
+
+    // FunciÃ³n para que solo se puedan escribir letras y nÃºmeros en los campos de texto, con el fin de evitar inyecciones SQL
+    void ValidarEntrada(TMP_InputField inputField)
+    {
+        string CaracteresValidos = @"^[a-zA-Z0-9]*$"; // Expresion regular de letras y nÃºmeros
+
+        if (!Regex.IsMatch(inputField.text, CaracteresValidos))
+        {
+            inputField.text = Regex.Replace(inputField.text, "[^a-zA-Z0-9]", ""); // No escribe caracteres distintos a legras o numeros
+        }
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Selectable anterior = Syst.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnUp();
             if (anterior != null)
@@ -59,7 +76,7 @@ public class Logica : MonoBehaviour
                 anterior.Select();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Tab))
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Selectable siguiente = Syst.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
             if (siguiente != null)
@@ -69,7 +86,7 @@ public class Logica : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Return))
         {
-            borrar.onClick.Invoke();
+            enviar.onClick.Invoke();
         }
     }
 
@@ -81,66 +98,61 @@ public class Logica : MonoBehaviour
         }
     }
 
-    // Método para actualizar la barra de vida
-    public void ActualizarVida(float nuevaVida)
+    void VolverLogin()
     {
-        vidaActual = Mathf.Clamp(nuevaVida, 0, vidaMaxima); // Limitar el valor entre 0 y vida máxima
-        if (barraDeVida != null)
+        if (CamposVacios.activeSelf.Equals(true))
         {
-            barraDeVida.value = vidaActual;
+            CamposVacios.SetActive(false);
+
         }
-        Debug.Log($"Vida actualizada: {vidaActual}");
+        else if (UsuarioIncorrecto.activeSelf.Equals(true))
+        {
+            UsuarioIncorrecto.SetActive(false);
+        }
     }
+
 
     public void ComprobarDatos()
     {
-        try
+        if (string.IsNullOrWhiteSpace(usuarioIntroducido.text) || string.IsNullOrWhiteSpace(contrasenia.text))
         {
-            // Establecer la conexión a la base de datos
-            connectionString = "Server=sql8.freesqldatabase.com;Database=sql8773958;User=sql8773958;Password=Cs3e4bAvrl;Charset=utf8;";
-            using (MySqlConnection Conexion = new MySqlConnection(connectionString))
-            {
-                Conexion.Open();
 
-                Debug.Log("Conexión a la base de datos establecida.");
+            CamposVacios.SetActive(true);
 
-                // Consulta para verificar usuario y contraseña
-                string query = "SELECT COUNT(*) FROM Usuarios WHERE Usuario=@usuario AND Contraseña=@contraseña";
-                using (MySqlCommand comando = new MySqlCommand(query, Conexion))
+        }
+        else
+        {
+                // Establecer la conexion a la base de datos
+                connectionString = "Server=172.18.35.6;Database=bd_prueba;User=TFG;Password=09052025;Charset=utf8;";
+                using (MySqlConnection Conexion = new MySqlConnection(connectionString))
                 {
-                    // Usamos parámetros para evitar inyecciones SQL
-                    comando.Parameters.AddWithValue("@usuario", usuarioIntroducido.text);
-                    comando.Parameters.AddWithValue("@contraseña", contraseña.text);
+                    Conexion.Open();
 
-                    // Ejecutamos la consulta
-                    int count = Convert.ToInt32(comando.ExecuteScalar());
+                    Debug.Log("Conexiï¿½n a la base de datos establecida.");
 
-                    if (count > 0)
+                    // Consulta para verificar usuario y contraseï¿½a
+                    string query = "SELECT COUNT(*) FROM Usuarios WHERE Usuario=@usuario AND Contrasenia=@Contrasenia";
+                    using (MySqlCommand comando = new MySqlCommand(query, Conexion))
                     {
-                        // Mostrar MessageBox de éxito
-                        Debug.Log("¡Inicio de sesión exitoso!");
+                        // Usamos parï¿½metros para evitar inyecciones SQL
+                        comando.Parameters.AddWithValue("@usuario", usuarioIntroducido.text);
+                        comando.Parameters.AddWithValue("@Contrasenia", contrasenia.text);
 
-                        // Simular daño para probar la barra de vida
-                        ActualizarVida(vidaActual - 20f); // Por ejemplo, restamos 20 puntos de vida
+                        // Ejecutamos la consulta
+                        int count = Convert.ToInt32(comando.ExecuteScalar());
 
-                        // Cargar nueva escena
-                        SceneManager.LoadScene("Scenes/BarraCarga"); // Cambia el nombre de la escena según corresponda
-                    }
-                    else
-                    {
-                        // Mostrar mensaje de error
-                        Debug.Log("Usuario o contraseña incorrectos.");
+                        if (count > 0)
+                        {
+                            // Cargar nueva escena
+                            SceneManager.LoadScene("Scenes/BarraCarga"); // Cambia el nombre de la escena segun corresponda
+                        }
+                        else
+                        {
+                            // Mostrar mensaje de error
+                            UsuarioIncorrecto.SetActive(true);
+                        }
                     }
                 }
             }
         }
-        catch (MySqlException ex)
-        {
-            Debug.LogError($"Error al conectar con la base de datos: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error general: {ex.Message}");
-        }
     }
-}
