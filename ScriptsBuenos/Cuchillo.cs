@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class Cuchillo : MonoBehaviour
 {
-    public Transform handTransform; // Transform de la mano del personaje
-    public float damage = 5f; // Daño del cuchillo
+    public Transform manoTransform; // Transform de la mano del personaje
+    public float damage = 5f; // DaÃ±o del cuchillo
     public Animator animator; // Animator para controlar las animaciones
     public GameObject rifle; // Rifle configurado como arma inicial
-    public GameObject pistola; // Pistola para cambiar más tarde
+    public GameObject pistola; // Pistola para cambiar mÃ¡s tarde
     public GameObject knife; // Cuchillo
     public GameObject enemigoG;
-    private bool canAttack = true; // Control para evitar múltiples activaciones
+    private bool ataca = true; // Control para evitar mÃºltiples activaciones
 
     void Start()
     {
         // Anclar el cuchillo a la mano
-        if (handTransform != null && knife != null)
+        if (manoTransform != null && knife != null)
         {
-            knife.transform.SetParent(handTransform);
-            knife.transform.localPosition = new Vector3(-0.265f, 0.052f, 0.103f); // Ajusta según el modelo
-            knife.transform.localRotation = Quaternion.Euler(-8.1f, -170.04f, 0f); // Ajusta según el modelo
+            knife.transform.SetParent(manoTransform);
+            knife.transform.localPosition = new Vector3(-0.265f, 0.052f, 0.103f); // Ajusta segÃºn el modelo
+            knife.transform.localRotation = Quaternion.Euler(-8.1f, -170.04f, 0f); // Ajusta segÃºn el modelo
 
             Debug.Log("Cuchillo anclado correctamente.");
         }
@@ -34,30 +34,30 @@ public class Cuchillo : MonoBehaviour
         animator = GameObject.Find("Jugador").GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogError("No se encontró un Animator en el personaje.");
+            Debug.LogError("No se encontrÃ³ un Animator en el personaje.");
         }
     }
 
     void Update()
     {
-        // Control de la animación de caminar
+        // Control de la animaciÃ³n de caminar
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
         {
             if (animator != null)
             {
-                animator.SetBool("AndarKnife", true); // Activar animación de caminar
+                animator.SetBool("AndarKnife", true); // Activar animaciÃ³n de caminar
             }
         }
         else
         {
             if (animator != null)
             {
-                animator.SetBool("AndarKnife", false); // Desactivar animación de caminar (debería regresar a "idle")
+                animator.SetBool("AndarKnife", false); // Desactivar animaciÃ³n de caminar (deberÃ­a regresar a "idle")
             }
         }
 
-        // Control de la animación de ataque
-        if (Input.GetButtonDown("Fire1") && canAttack) // Botón izquierdo para atacar
+        // Control de la animaciÃ³n de ataque
+        if (Input.GetButtonDown("Fire1") && ataca) // BotÃ³n izquierdo para atacar
         {
             if (animator != null)
             {
@@ -66,53 +66,65 @@ public class Cuchillo : MonoBehaviour
         }
     }
 
-    // Interfaz que se utiliza para definir métodos que pueden ser interrumpidos y reanudados, conocidos como corutinas
+    // Interfaz que se utiliza para definir mÃ©todos que pueden ser interrumpidos y reanudados, conocidos como corutinas
     private IEnumerator Attack()
     {
-        canAttack = false; // Bloquear el ataque durante la ejecución
-        animator.SetTrigger("KnifeAtaque"); // Activar la animación de ataque
+        ataca = false; // Bloquear el ataque durante la ejecuciÃ³n
+        animator.SetTrigger("KnifeAtaque"); // Activar la animaciÃ³n de ataque
 
-        // Esperar la duración de la animación antes de continuar
-        yield return new WaitForSeconds(0.5f); // Ajusta el tiempo según la animación
+        // Esperar la duraciÃ³n de la animaciÃ³n antes de continuar
+        yield return new WaitForSeconds(0.5f); // Ajusta el tiempo segÃºn la animaciÃ³n
 
-        // Obtener origen y dirección del Raycast desde la cámara
+        // Obtener origen y direcciÃ³n del Raycast desde la cÃ¡mara
         Vector3 origin = Camera.main.transform.position;
         Vector3 direction = Camera.main.transform.forward;
 
-        Debug.DrawRay(origin, direction * 4f, Color.red, 2f); // Línea de depuración para visualizar
+        Debug.DrawRay(origin, direction * 4f, Color.red, 2f); // LÃ­nea de depuraciÃ³n para visualizar
 
         // Realizar el Raycast
         RaycastHit hit;
-        if (Physics.Raycast(origin, direction, out hit, 4f)) // Cambiar el rango según sea necesario
+        if (Physics.Raycast(origin, direction, out hit, 4f)) // Cambiar el rango segÃºn sea necesario
         {
 
             // Verificar si el objeto golpeado es un enemigo
             Enemigo enemigo = hit.collider.GetComponent<Enemigo>();
+            EnemigoBoss boss = hit.collider.GetComponent<EnemigoBoss>();
             if (enemigo != null)
             {
-                enemigo.TakeDamage(damage); // Aplicar daño al enemigo
-                Debug.Log("Daño aplicado al enemigo.");
+                enemigo.TakeDamage(damage); // Aplicar daÃ±o al enemigo              
+                Debug.Log("DaÃ±o aplicado al enemigo.");
+            }
+
+            else if (boss != null)
+            {
+                boss.TakeDamage(damage); // Aplicar daÃ±o al enemigo
             }
         }
         else
         {
-            Debug.Log("El Raycast no detectó ningún objetivo.");
+            Debug.Log("El Raycast no detectÃ³ ningÃºn objetivo.");
         }
 
-        canAttack = true; // Permitir el próximo ataque
+        ataca = true; // Permitir el prÃ³ximo ataque
     }
 
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemigo")) // Asegúrate de que el enemigo tenga la etiqueta "Enemigo"
+        if (other.CompareTag("Enemigo")) // AsegÃºrate de que el enemigo tenga la etiqueta "Enemigo"
         {
-            Debug.Log("El cuchillo golpeó al enemigo: " + other.name);
+            Debug.Log("El cuchillo golpeÃ³ al enemigo: " + other.name);
             Enemigo enemigo = other.GetComponent<Enemigo>();
+            EnemigoBoss boss = other.GetComponent<EnemigoBoss>();
             if (enemigo != null)
             {
-                enemigo.TakeDamage(damage); // Aplicar daño al enemigo
+                enemigo.TakeDamage(damage); // Aplicar daÃ±o al enemigo
+            }
+
+            if (boss != null)
+            {
+                boss.TakeDamage(damage); // Aplicar daÃ±o al enemigo
             }
         }
     }
