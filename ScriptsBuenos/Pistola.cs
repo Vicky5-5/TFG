@@ -1,108 +1,105 @@
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 
-public class Pistola : MonoBehaviour, IArma
+public class Pistola : MonoBehaviour
 {
-    public GameObject proyectil; // Prefab del proyectil
-    public Transform spawn;      // Punto donde aparece el proyectil
-    public float damage = 20f;   // Daño del rifle
-    public float rate2 = 0.1f;   // 10 balas por segundo
-    private float shotRate2;     // Temporizador para controlar los disparos
-    public Animator animator;    // Animator para controlar las animaciones
-    public Camera playerCamera;  // Cámara del jugador (para calcular la dirección del disparo)
-    public LayerMask aimLayerMask; // Capas con las que debe colisionar el raycast
-    public float range = 300f;   // Alcance máximo del disparo
-    public float fuerza = 100f; // Fuerza de disparo
+    public GameObject proyectil;
+    public Transform spawn;
+    public float damage = 20f;
+    public float cadencia = 0.3f;
+    private float cadencia2;
+    public Animator animator;
+    public Camera jugadorCamera;
+    public float rango = 300f;
+    public float fuerza = 50f;
+    public float retrocesoCamaraIntensidad = 0.05f; // Intensidad del retroceso
 
-    public GameObject rifle; // Pistola para cambiar más tarde
-    public GameObject knife; // Cuchillo
-    public GameObject pistola; // Cuchillo
+    public AudioClip sonidoDisparo;
+    private AudioSource audioSource;
+
+    public GameObject rifle;
+    public GameObject knife;
+    public GameObject pistola;
+
     void Start()
     {
-        // Obtener el componente Animator desde el personaje
         animator = GameObject.Find("Jugador").GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogError("No se encontró un Animator en el pistola.");
+            Debug.LogError("No se encontrÃ³ un Animator en la pistola.");
         }
+
         rifle.SetActive(false);
         knife.SetActive(false);
+
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
     }
 
     void Update()
     {
-
-        // Verifica si está apuntando (Fire2)
-        if (Input.GetButton("Fire2")) // Botón derecho para apuntar
+        if (Input.GetButton("Fire2"))
         {
-            // Permitir disparar si Fire1 está mantenido o pulsado
-            if (Input.GetButtonDown("Fire1") || (Input.GetButton("Fire1") && Time.time >= shotRate2))
+            if (Input.GetButtonDown("Fire1") || (Input.GetButton("Fire1") && Time.time >= cadencia2))
             {
-                shotRate2 = Time.time + rate2; // Actualizar el temporizador según la cadencia
-                Shoot(); // Disparar proyectil
+                cadencia2 = Time.time + cadencia; // Asignar el tiempo de espera correcto antes del siguiente disparo
+                Disparar();
+            }
+            else
+            {
+                animator.SetBool("DispararPistola", false);
             }
         }
         else
         {
-            // Apagar la animación de disparo si se suelta Fire2 (opcional, según diseño)
             animator.SetBool("DispararPistola", false);
         }
     }
 
-    public void Shoot()
+    public void Disparar()
     {
         if (animator != null)
         {
             animator.SetBool("DispararPistola", true);
 
-            // Raycast desde el centro de la cámara
-            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            if (sonidoDisparo != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(sonidoDisparo);
+            }
+
+            Ray ray = jugadorCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
+            Vector3 targetPoint = Physics.Raycast(ray, out hit, rango) ? hit.point : ray.GetPoint(rango);
 
-            Vector3 targetPoint;
-            if (Physics.Raycast(ray, out hit, range, aimLayerMask))
-            {
-                targetPoint = hit.point; // Punto de impacto del raycast
-            }
-            else
-            {
-                targetPoint = ray.GetPoint(range); // Punto lejano si no impacta nada
-            }
-
-            // Crear la bala
             Vector3 direction = (targetPoint - spawn.position).normalized;
             GameObject bala = Instantiate(proyectil, spawn.position, Quaternion.LookRotation(direction));
 
-            // Aplicar fuerza al Rigidbody de la bala
             Rigidbody balaRigidbody = bala.GetComponent<Rigidbody>();
             if (balaRigidbody != null)
             {
-                balaRigidbody.AddForce(direction * fuerza, ForceMode.Impulse); // Usar fuerza de tipo "Impulse"
-                Debug.Log("Fuerza aplicada a la bala: " + fuerza);
+                balaRigidbody.AddForce(direction * fuerza, ForceMode.Impulse);
             }
             else
             {
                 Debug.LogError("El proyectil no tiene un Rigidbody asignado.");
             }
 
-            // Configurar el daño de la bala
             Bala balaScript = bala.GetComponent<Bala>();
             if (balaScript != null)
             {
                 balaScript.SetDamage(damage);
-                Debug.Log("Daño configurado en la bala: " + damage);
             }
             else
             {
-                Debug.LogError("El script Bala no está asignado al prefab de la bala.");
+                Debug.LogError("El script Bala no estÃ¡ asignado al prefab de la bala.");
             }
 
-            Debug.Log("¡Disparo realizado!");
+            Debug.Log("Â¡Disparo realizado!");
+
+            // **Aplicar el retroceso de la cÃ¡mara**
+            Object.FindFirstObjectByType<ControladorCamara>().AplicarRetroceso(retrocesoCamaraIntensidad);
         }
         else
         {
-            Debug.LogError("El Animator no está asignado.");
+            Debug.LogError("El Animator no estÃ¡ asignado.");
         }
     }
-
 }
