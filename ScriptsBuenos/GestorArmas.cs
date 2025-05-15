@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class GestorArmas : MonoBehaviour
 {
-    [Header("ConfiguraciÛn de Armas")]
+    [Header("Configuraci√≥n de Armas")]
     public GameObject pistola; // GameObject de la pistola
     public GameObject rifle; // GameObject del rifle
     public GameObject knife; // GameObject del cuchillo
 
-    [Header("Spawns de C·mara")]
-    public Transform pistolCameraSpawn; // Punto de spawn de la c·mara para la pistola
-    public Transform rifleCameraSpawn; // Punto de spawn de la c·mara para el rifle
-    public Transform knifeCameraSpawn; // Punto de spawn de la c·mara para el cuchillo
+    [Header("Spawns de C√°mara")]
+    public Transform pistolaCameraSpawn; // Punto de spawn de la c√°mara para la pistola
+    public Transform rifleCameraSpawn; // Punto de spawn de la c√°mara para el rifle
+    public Transform knifeCameraSpawn; // Punto de spawn de la c√°mara para el cuchillo
 
     [Header("Animaciones")]
     public Animator animator; // Controlador de animaciones
 
-    [Header("Controlador de C·mara")]
-    public ControladorCamara cameraController; // Referencia al script del controlador de c·mara
+    [Header("Controlador de C√°mara")]
+    public ControladorCamara cameraController; // Referencia al script del controlador de c√°mara
 
     [Header("No tocar, gracias :)")]
     public GameObject armaActual; // Arma actualmente seleccionada
@@ -28,13 +28,15 @@ public class GestorArmas : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            armaActual = null; // Asegurar que no haya un arma inicial
         }
         else
         {
-            Debug.LogError("M·s de un GestorArmas encontrado en la escena.");
+            Debug.LogError("M√°s de un GestorArmas encontrado en la escena.");
             Destroy(gameObject);
         }
     }
+
 
     void Start()
     {
@@ -45,8 +47,9 @@ public class GestorArmas : MonoBehaviour
         }
         else
         {
-            Debug.LogError("La pistola no est· asignada en el Inspector.");
+            Debug.LogError("La pistola no est√° asignada en el Inspector.");
         }
+
     }
 
     void Update()
@@ -75,31 +78,43 @@ public class GestorArmas : MonoBehaviour
 
             }
 
-        } 
+        }
     }
 
-    /// <summary>
-    /// Cambia el arma activa y ajusta la c·mara.
-    /// </summary>
-    /// <param name="nuevaArma">El GameObject del arma que se activar·.</param>
     public void CambiarArma(GameObject nuevaArma)
     {
         if (armaActual != null)
         {
             armaActual.SetActive(false); // Desactivar arma anterior
             Debug.Log($"Arma anterior desactivada: {armaActual.name}");
+
+            CamaraCuchillo camaraCuchillo = armaActual.GetComponent<CamaraCuchillo>();
+            if (camaraCuchillo != null)
+            {
+                camaraCuchillo.enabled = false;
+            }
         }
 
         if (nuevaArma != null)
         {
-            nuevaArma.SetActive(true); // Activar nueva arma
+            nuevaArma.SetActive(true);
             armaActual = nuevaArma;
             Debug.Log($"Nueva arma activada: {armaActual.name}");
 
-            // Cambiar la posiciÛn de la c·mara seg˙n el arma
-            if (nuevaArma == pistola && pistolCameraSpawn != null)
+            // ?? **Si la nueva arma es el cuchillo, activar la c√°mara especial**
+            if (nuevaArma == knife)
             {
-                cameraController.AdjustCameraForWeapon(pistolCameraSpawn);
+                CamaraCuchillo camaraCuchillo = nuevaArma.GetComponent<CamaraCuchillo>();
+                if (camaraCuchillo != null)
+                {
+                    camaraCuchillo.enabled = true;
+                }
+            }
+
+            // ?? **Cambiar la posici√≥n de la c√°mara seg√∫n el arma**
+            if (nuevaArma == pistola && pistolaCameraSpawn != null)
+            {
+                cameraController.AdjustCameraForWeapon(pistolaCameraSpawn);
             }
             else if (nuevaArma == rifle && rifleCameraSpawn != null)
             {
@@ -107,13 +122,12 @@ public class GestorArmas : MonoBehaviour
             }
             else if (nuevaArma == knife && knifeCameraSpawn != null)
             {
-                Debug.Log("Cambiando la c·mara al spawn del cuchillo.");
+                Debug.Log("Cambiando la c√°mara al spawn del cuchillo.");
                 cameraController.AdjustCameraForWeapon(knifeCameraSpawn);
             }
-            
             else
             {
-                Debug.LogWarning("No se encontrÛ un spawn de c·mara para esta arma.");
+                Debug.LogWarning("No se encontr√≥ un spawn de c√°mara para esta arma.");
             }
         }
         else
@@ -121,6 +135,4 @@ public class GestorArmas : MonoBehaviour
             Debug.LogError("El objeto del arma es nulo.");
         }
     }
-    
-
 }
