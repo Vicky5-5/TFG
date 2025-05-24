@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-public class Enemigo : MonoBehaviour
+public class EnemigoBoss : MonoBehaviour
 {
     public Image barraVida;
-    public float VidaMaxima = 50f; // Vida del enemigo
-    public float health = 50f; // Vida del enemigo
+    public float VidaMaxima = 100f; // Vida del enemigo
+    public float health = 100f; // Vida del enemigo
     public NavMeshAgent agent;
     public Transform player; // Referencia al jugador
     public LayerMask whatIsGround, whatIsPlayer;
@@ -32,9 +32,9 @@ public class Enemigo : MonoBehaviour
     private void Start()
     {
         health = VidaMaxima;
-        UpdateBarraVida(VidaMaxima,health);
-
+        UpdateBarraVida(VidaMaxima, health);
     }
+
     private void Awake()
     {
         player = GameObject.Find("Jugador").transform;
@@ -61,7 +61,7 @@ public class Enemigo : MonoBehaviour
     public void TakeDamage(float damage)
     {
         health -= damage;
-        UpdateBarraVida(VidaMaxima,health);
+        UpdateBarraVida(VidaMaxima, health);
         Debug.Log($"El enemigo ha recibido {damage} de daño. Vida restante: {health}");
 
         if (health <= 0)
@@ -137,7 +137,6 @@ public class Enemigo : MonoBehaviour
         Debug.Log("El enemigo ha muerto.");
         animator.SetBool("MuerteZombie", true);
         Destroy(gameObject);
-    
     }
 
     private void OnDrawGizmosSelected()

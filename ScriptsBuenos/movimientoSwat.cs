@@ -10,7 +10,7 @@ public class movimientoSwat : MonoBehaviour
 
     public VidaPersonaje barraVida; // Referencia al script de vida
 
-    public Image cruz; // Ret√≠cula de apuntado
+    public Image cruz; // RetÌcula de apuntado
     public GameObject pistola; // Rifle configurado como arma inicial
     public GameObject cuchillo; // Rifle configurado como arma inicial
     public GameObject rifle; // Rifle configurado como arma inicial
@@ -51,7 +51,7 @@ public class movimientoSwat : MonoBehaviour
         }
 
         // Configurar referencia al Gestor de Armas SOLO si no lo maneja ya
-        GestorArmas gestorArmas = Object.FindFirstObjectByType<GestorArmas>(); // Correcci√≥n de m√©todo
+        GestorArmas gestorArmas = Object.FindFirstObjectByType<GestorArmas>(); // CorrecciÛn de mÈtodo
         if (gestorArmas != null)
         {
             gestorArmas.CambiarArma(pistola); // Establecer la pistola
@@ -59,22 +59,22 @@ public class movimientoSwat : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No se encontr√≥ el GestorArmas en la escena.");
+            Debug.LogError("No se encontrÛ el GestorArmas en la escena.");
         }
 
-        // Asegurar que la ret√≠cula est√© oculta al inicio
+        // Asegurar que la retÌcula estÈ oculta al inicio
         if (cruz != null)
         {
             cruz.enabled = false;
         }
         else
         {
-            Debug.LogError("No se ha asignado la ret√≠cula en el Inspector.");
+            Debug.LogError("No se ha asignado la retÌcula en el Inspector.");
         }
 
         if (barraVida == null)
         {
-            Debug.LogError("HealthManager no est√° asignado en el Inspector.");
+            Debug.LogError("HealthManager no est· asignado en el Inspector.");
         }
     }
 
@@ -96,7 +96,7 @@ public class movimientoSwat : MonoBehaviour
         // Manejo del salto
         if (characterController.isGrounded)
         {
-            ySpeed = -0.5f; // Peque√±o valor negativo para asegurar que est√© en el suelo
+            ySpeed = -0.5f; // PequeÒo valor negativo para asegurar que estÈ en el suelo
 
             if (Input.GetButtonDown("Jump"))
             {
@@ -127,7 +127,7 @@ public class movimientoSwat : MonoBehaviour
         }
         else
         {
-            velocidad = 2f; // Vuelve a caminar si no est√° corriendo
+            velocidad = 2f; // Vuelve a caminar si no est· corriendo
             animator.SetBool("Correr", false);
         }
     }
@@ -137,7 +137,7 @@ public class movimientoSwat : MonoBehaviour
 
     public void TakeDamageFromEnemy(float damage)
     {
-        // Llamar al m√©todo TakeDamage del HealthManager
+        // Llamar al mÈtodo TakeDamage del HealthManager
         if (barraVida != null)
         {
             barraVida.TakeDamagePlayer(damage);
@@ -154,7 +154,7 @@ public class movimientoSwat : MonoBehaviour
             animator.SetIKRotation(AvatarIKGoal.RightHand, manoDerecha.rotation);
         }
 
-        float leftHandWeight = 1f; // Aseg√∫rate de que este valor est√© entre 0 y 1
+        float leftHandWeight = 1f; // Aseg˙rate de que este valor estÈ entre 0 y 1
 
         if (manoIzquierdaIKTarget != null)
         {

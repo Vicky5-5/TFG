@@ -18,7 +18,7 @@ public class LanzamientoGranada : MonoBehaviour
     public float fuerzaArriba = 5f;
 
     private bool preparado = true;
-   
+
     private void Update()
     {
         // Lanza la granada solo si presiona "3" y hay disponibles

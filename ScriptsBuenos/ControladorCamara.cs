@@ -1,22 +1,24 @@
 using UnityEngine;
+using System.Collections;
 
 public class ControladorCamara : MonoBehaviour
 {
     [Header("Configuración General")]
-    public float smoothSpeed = 15f; // Velocidad de transición suave
-    public Vector3 offset; // Offset adicional para ajustar la posición de la cámara
+    public float smoothSpeed = 15f;
+    public Vector3 offset;
 
     [Header("Spawns de Cámara")]
-    public Transform defaultSpawn; // Posición predeterminada de la cámara
-    public Transform currentCameraSpawn; // Spawn actual de la cámara (se ajustará dinámicamente)
+    public Transform defaultSpawn;
+    public Transform currentCameraSpawn;
+
+    private bool retrocesoActivo = false;
 
     private void Start()
     {
-        // Configurar el spawn inicial como el predeterminado
         if (defaultSpawn != null)
         {
             currentCameraSpawn = defaultSpawn;
-            UpdateCameraPositionInstant(); // Posicionar instantáneamente al inicio
+            UpdateCameraPositionInstant();
         }
         else
         {
@@ -24,36 +26,59 @@ public class ControladorCamara : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (currentCameraSpawn != null)
+        if (currentCameraSpawn != null && !retrocesoActivo)
         {
-            // Transición suave de posición
-            Vector3 desiredPosition = currentCameraSpawn.position + offset;
-            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * smoothSpeed);
-            transform.position = smoothedPosition;
+            Vector3 targetPosition = currentCameraSpawn.position + offset;
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * smoothSpeed);
 
-            // Transición suave de rotación
-            Quaternion desiredRotation = currentCameraSpawn.rotation;
-            Quaternion smoothedRotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * smoothSpeed);
-            transform.rotation = smoothedRotation;
-        }
-        else
-        {
-            Debug.LogError("El spawn actual de la cámara es nulo.");
+            Quaternion rotacionObjetivo = Quaternion.Euler(0f, currentCameraSpawn.eulerAngles.y, 0f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotacionObjetivo, Time.deltaTime * smoothSpeed);
         }
     }
 
-    /// <summary>
-    /// Cambiar dinámicamente el spawn de la cámara.
-    /// </summary>
-    /// <param name="newSpawn">El Transform del nuevo punto de spawn de la cámara.</param>
+    public void AplicarRetroceso(float intensidad)
+    {
+        if (!retrocesoActivo)
+        {
+            StartCoroutine(RetrocesoSuave(intensidad));
+        }
+    }
+
+    private IEnumerator RetrocesoSuave(float intensidad)
+    {
+        retrocesoActivo = true;
+
+        Vector3 originalPosition = transform.position;
+        Vector3 retrocesoPosition = originalPosition - transform.forward * intensidad;
+
+        float duracion = 0.1f;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            transform.position = Vector3.Lerp(originalPosition, retrocesoPosition, tiempo / duracion);
+            yield return null;
+        }
+
+        tiempo = 0f;
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            transform.position = Vector3.Lerp(retrocesoPosition, originalPosition, tiempo / duracion);
+            yield return null;
+        }
+
+        retrocesoActivo = false;
+    }
+
     public void AdjustCameraForWeapon(Transform newSpawn)
     {
         if (newSpawn != null)
         {
-            currentCameraSpawn = newSpawn; // Actualizar el spawn actual
-            Debug.Log($"Cambiando spawn de cámara a: {newSpawn.name}");
+            currentCameraSpawn = newSpawn;
         }
         else
         {
@@ -61,32 +86,20 @@ public class ControladorCamara : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Actualiza la posición de la cámara instantáneamente sin transición suave.
-    /// </summary>
     public void UpdateCameraPositionInstant()
     {
         if (currentCameraSpawn != null)
         {
             transform.position = currentCameraSpawn.position + offset;
-            transform.rotation = currentCameraSpawn.rotation;
-            Debug.Log($"Cámara actualizada instantáneamente al spawn: {currentCameraSpawn.name}");
-        }
-        else
-        {
-            Debug.LogError("El spawn actual de la cámara es nulo.");
+            transform.rotation = Quaternion.Euler(0f, currentCameraSpawn.eulerAngles.y, 0f);
         }
     }
 
-    /// <summary>
-    /// Restablece la cámara a su posición predeterminada.
-    /// </summary>
     public void ResetToDefaultView()
     {
         if (defaultSpawn != null)
         {
             AdjustCameraForWeapon(defaultSpawn);
-            Debug.Log("Cámara restablecida al spawn predeterminado.");
         }
         else
         {

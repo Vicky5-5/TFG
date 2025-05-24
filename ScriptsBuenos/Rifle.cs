@@ -5,14 +5,14 @@ public class Rifle : MonoBehaviour
 {
     public GameObject proyectil; // Prefab del proyectil
     public Transform spawn;      // Punto donde aparece el proyectil
-    public float damage = 20f;   // DaÃ±o del rifle
+    public float damage = 20f;   // Daño del rifle
     public float cadencia = 0.1f;   // 10 balas por segundo
     private float cadencia2;     // Temporizador para controlar los disparos
     public Animator animator;    // Animator para controlar las animaciones
-    public Camera jugadorCamera;  // CÃ¡mara del jugador (para calcular la direcciÃ³n del disparo)
-    public float alcance = 300f;   // Alcance mÃ¡ximo del disparo
+    public Camera jugadorCamera;  // Cámara del jugador (para calcular la dirección del disparo)
+    public float alcance = 300f;   // Alcance máximo del disparo
     public Transform manoTransform;
-    public GameObject rifle; // Pistola para cambiar mÃ¡s tarde
+    public GameObject rifle; // Pistola para cambiar más tarde
     public GameObject knife; // Cuchillo
     public GameObject pistola; // Cuchillo
 
@@ -24,8 +24,8 @@ public class Rifle : MonoBehaviour
         if (manoTransform != null && gameObject != null)
         {
             rifle.transform.SetParent(manoTransform);
-            rifle.transform.localPosition = new Vector3(0.16f, 0.298f, -0.119f); // Ajusta segÃºn el modelo
-            rifle.transform.localRotation = Quaternion.Euler(7.026f, 49.306f, 92.113f); // Ajusta segÃºn el modelo
+            rifle.transform.localPosition = new Vector3(0.16f, 0.298f, -0.119f); // Ajusta según el modelo
+            rifle.transform.localRotation = Quaternion.Euler(7.026f, 49.306f, 92.113f); // Ajusta según el modelo
 
             Debug.Log("Rifle anclada correctamente a la mano.");
         }
@@ -33,7 +33,7 @@ public class Rifle : MonoBehaviour
         {
             if (manoIzqIKTarget == null)
             {
-                Debug.LogError("No se encontrÃ³ 'mixamorig:LeftHand' dentro del rifle.");
+                Debug.LogError("No se encontró 'mixamorig:LeftHand' dentro del rifle.");
             }
         }
         // Activar la pistola al iniciar
@@ -44,7 +44,7 @@ public class Rifle : MonoBehaviour
         animator = GameObject.Find("Jugador").GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogError("No se encontrÃ³ un Animator en el personaje.");
+            Debug.LogError("No se encontró un Animator en el personaje.");
         }
     }
 
@@ -54,14 +54,14 @@ public class Rifle : MonoBehaviour
         {
             if (animator != null)
             {
-                animator.SetBool("AndaRifle", true); // Activar animaciÃ³n de caminar
+                animator.SetBool("AndaRifle", true); // Activar animación de caminar
             }
         }
         else
         {
             if (animator != null)
             {
-                animator.SetBool("AndaRifle", false); // Desactivar animaciÃ³n de caminar (deberÃ­a regresar a "idle")
+                animator.SetBool("AndaRifle", false); // Desactivar animación de caminar (debería regresar a "idle")
             }
         }
 
@@ -81,13 +81,13 @@ public class Rifle : MonoBehaviour
                 animator.SetBool("RifleRun", false);
             }
         }
-        // Verifica si estÃ¡ apuntando (Fire2)
-        if (Input.GetButton("Fire2")) // BotÃ³n derecho para apuntar
+        // Verifica si está apuntando (Fire2)
+        if (Input.GetButton("Fire2")) // Botón derecho para apuntar
         {
-            // Permitir disparar solo si Fire2 estÃ¡ mantenido y Fire1 se pulsa o mantiene
+            // Permitir disparar solo si Fire2 está mantenido y Fire1 se pulsa o mantiene
             if ((Input.GetButtonDown("Fire1") || Input.GetButton("Fire1")) && Time.time >= cadencia2)
             {
-                cadencia2 = Time.time + cadencia; // Actualizar el temporizador segÃºn la cadencia
+                cadencia2 = Time.time + cadencia; // Actualizar el temporizador según la cadencia
                 Disparar(); // Disparar proyectil
             }
             else
@@ -95,13 +95,13 @@ public class Rifle : MonoBehaviour
                 // Si suelta Fire1 mientras mantiene Fire2, no dispara
                 if (animator != null)
                 {
-                    animator.SetBool("DispararRifle", false); // Detener animaciÃ³n de disparo
+                    animator.SetBool("DispararRifle", false); // Detener animación de disparo
                 }
             }
         }
         else
         {
-            // Apagar la animaciÃ³n de disparo si se suelta Fire2 (opcional, segÃºn diseÃ±o)
+            // Apagar la animación de disparo si se suelta Fire2 (opcional, según diseño)
             animator.SetBool("DispararRifle", false);
         }
     }
@@ -112,7 +112,7 @@ public class Rifle : MonoBehaviour
         {
             animator.SetBool("DispararRifle", true);
 
-            // Raycast desde el centro de la cÃ¡mara
+            // Raycast desde el centro de la cámara
             Ray ray = jugadorCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
 
@@ -130,23 +130,23 @@ public class Rifle : MonoBehaviour
             Vector3 direction = (targetPoint - spawn.position).normalized;
             GameObject bala = Instantiate(proyectil, spawn.position, Quaternion.LookRotation(direction));
 
-            // Configurar el daÃ±o de la bala
+            // Configurar el daño de la bala
             Bala balaScript = bala.GetComponent<Bala>();
             if (balaScript != null)
             {
                 balaScript.SetDamage(damage);
-                Debug.Log("DaÃ±o configurado en la bala: " + damage);
+                Debug.Log("Daño configurado en la bala: " + damage);
             }
             else
             {
-                Debug.LogError("El script Bala no estÃ¡ asignado al prefab de la bala.");
+                Debug.LogError("El script Bala no está asignado al prefab de la bala.");
             }
 
-            Debug.Log("Â¡Disparo realizado!");
+            Debug.Log("¡Disparo realizado!");
         }
         else
         {
-            Debug.LogError("El Animator no estÃ¡ asignado.");
+            Debug.LogError("El Animator no está asignado.");
         }
     }
     void OnAnimatorIK(int layerIndex)
@@ -169,7 +169,7 @@ public class Rifle : MonoBehaviour
             }
             else
             {
-                Debug.LogError("leftHandIKTarget es nulo. Verifica la asignaciÃ³n.");
+                Debug.LogError("leftHandIKTarget es nulo. Verifica la asignación.");
             }
         }
     }

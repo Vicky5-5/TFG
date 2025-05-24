@@ -45,6 +45,14 @@ public class TrampaPinchos : MonoBehaviour
             // Registrar la muerte del jugador en GameManager
             if (Muerte.instance != null)
             {
+                // Asegurar que la barra de vida se quede en 0
+                VidaPersonaje health = player.GetComponent<VidaPersonaje>();
+                if (health != null)
+                {
+                    health.currentHealth = 0; // Establecer la vida en 0
+                    health.UpdateHealthUI(); // Llamar al método que actualiza la interfaz si existe
+                }
+
                 Muerte.instance.PlayerDied(player);
             }
 

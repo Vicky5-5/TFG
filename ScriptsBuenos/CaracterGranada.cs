@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class CaracterGranada : MonoBehaviour
 {
-    [Header("ConfiguraciÃ³n de ExplosiÃ³n")]
+    [Header("Configuración de Explosión")]
     public int damage = 50;
     public float radioExplosion = 10f;
     public float fuerzaExplosion = 50f;
-    public GameObject efectoExplosion; // Prefab del efecto de explosiÃ³n
+    public GameObject efectoExplosion; // Prefab del efecto de explosión
 
     private Rigidbody rb;
     private bool haExplotado = false;
@@ -23,15 +23,15 @@ public class CaracterGranada : MonoBehaviour
 
     public void TemporizadorExplosion()
     {
-        Invoke(nameof(Explosion), 3f); // La granada explotarÃ¡ despuÃ©s de 3 segundos
+        Invoke(nameof(Explosion), 3f); // La granada explotará después de 3 segundos
     }
 
     public void Explosion()
     {
-        if (haExplotado) return; // Evitar explosiones mÃºltiples
+        if (haExplotado) return; // Evitar explosiones múltiples
         haExplotado = true;
 
-        //Instanciar el efecto de partÃ­culas de explosiÃ³n
+        //Instanciar el efecto de partículas de explosión
         if (efectoExplosion != null)
         {
             GameObject effectInstance = Instantiate(efectoExplosion, transform.position, Quaternion.identity);
@@ -52,10 +52,10 @@ public class CaracterGranada : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No se ha asignado un prefab para el efecto de explosiÃ³n.");
+            Debug.LogError("No se ha asignado un prefab para el efecto de explosión.");
         }
 
-        // ?? **Aplicar daÃ±o y fuerza de explosiÃ³n**
+        // ?? **Aplicar daño y fuerza de explosión**
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, radioExplosion);
         foreach (Collider hit in hitColliders)
         {
@@ -77,6 +77,6 @@ public class CaracterGranada : MonoBehaviour
         }
 
         // Destruir la granada tras explotar
-        Destroy(gameObject, 0.1f); // PequeÃ±o retraso para visualizar la explosiÃ³n antes de eliminar
+        Destroy(gameObject, 0.1f); // Pequeño retraso para visualizar la explosión antes de eliminar
     }
 }

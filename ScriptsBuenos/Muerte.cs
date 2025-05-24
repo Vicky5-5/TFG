@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Muerte : MonoBehaviour
 {
     public static Muerte instance; // Instancia singleton
     public Animator animator;      // Animator asignado al jugador
+
 
     private void Awake()
     {
@@ -54,6 +56,6 @@ public class Muerte : MonoBehaviour
             Debug.LogError("No se encontró un Animator en el jugador.");
         }
 
-        Debug.Log("Estado del jugador: muerto.");
+        Debug.Log("Estado del jugador: muerto.");       
     }
 }

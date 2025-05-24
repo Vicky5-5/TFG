@@ -4,38 +4,38 @@ using UnityEngine.UI;
 public class Apuntado : MonoBehaviour
 {
     public Animator animator;    // Animator del personaje para controlar animaciones
-    public Image cruz;           // RetÃ­cula en el UI (asignada desde el Canvas)
+    public Image cruz;           // Retícula en el UI (asignada desde el Canvas)
     public GameObject proyectil; // Prefab del proyectil
-    public Transform spawn;      // Punto de apariciÃ³n del proyectil
-    public Camera jugadorCamera;  // CÃ¡mara del jugador
+    public Transform spawn;      // Punto de aparición del proyectil
+    public Camera jugadorCamera;  // Cámara del jugador
 
     void Start()
     {
 
-        //// Ocultar retÃ­cula al inicio
+        //// Ocultar retícula al inicio
         if (cruz != null)
         {
-            cruz.enabled = false; // La retÃ­cula comienza oculta
+            cruz.enabled = false; // La retícula comienza oculta
         }
         else
         {
-            Debug.LogError("No se ha asignado la retÃ­cula (cruz) en el Inspector.");
+            Debug.LogError("No se ha asignado la retícula (cruz) en el Inspector.");
         }
     }
 
     public void Update()
     {
-        
+
 
         // Control del apuntado (Fire2)
-        if (Input.GetButton("Fire2")) // BotÃ³n derecho para apuntar
+        if (Input.GetButton("Fire2")) // Botón derecho para apuntar
         {
 
-            // Mostrar la retÃ­cula
+            // Mostrar la retícula
             if (cruz != null)
             {
                 cruz.enabled = true;
-                cruz.rectTransform.sizeDelta = new Vector2(32, 32); // TamaÃ±o fijo de la retÃ­cula
+                cruz.rectTransform.sizeDelta = new Vector2(32, 32); // Tamaño fijo de la retícula
             }
 
             // Reducir FOV para zoom
@@ -46,7 +46,7 @@ public class Apuntado : MonoBehaviour
         }
         else
         {
-            // Ocultar la retÃ­cula
+            // Ocultar la retícula
             if (cruz != null)
             {
                 cruz.enabled = false;

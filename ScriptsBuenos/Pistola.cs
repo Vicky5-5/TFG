@@ -25,7 +25,7 @@ public class Pistola : MonoBehaviour
         animator = GameObject.Find("Jugador").GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogError("No se encontr√≥ un Animator en la pistola.");
+            Debug.LogError("No se encontrÛ un Animator en la pistola.");
         }
 
         rifle.SetActive(false);
@@ -89,17 +89,17 @@ public class Pistola : MonoBehaviour
             }
             else
             {
-                Debug.LogError("El script Bala no est√° asignado al prefab de la bala.");
+                Debug.LogError("El script Bala no est· asignado al prefab de la bala.");
             }
 
-            Debug.Log("¬°Disparo realizado!");
+            Debug.Log("°Disparo realizado!");
 
-            // **Aplicar el retroceso de la c√°mara**
+            // **Aplicar el retroceso de la c·mara**
             Object.FindFirstObjectByType<ControladorCamara>().AplicarRetroceso(retrocesoCamaraIntensidad);
         }
         else
         {
-            Debug.LogError("El Animator no est√° asignado.");
+            Debug.LogError("El Animator no est· asignado.");
         }
     }
 }
