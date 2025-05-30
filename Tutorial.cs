@@ -33,7 +33,7 @@ public class Tutorial : MonoBehaviour
             Continuar.onClick.Invoke();
         }
     }
-        void ContinuarTutorial()
+    void ContinuarTutorial()
     {
         Reticula.SetActive(true);
         Inicio.SetActive(false);
@@ -48,16 +48,16 @@ public class Tutorial : MonoBehaviour
             switch (gameObject.name) // Identifica el Mesh Collider por su nombre
             {
                 case "Point1":
-                    Explicacion.text = "Hay una roca en el camino. Corre con la tecla Shift y saltala con el Espacio";
+                    Explicacion.text = "Hay una roca en el camino. Corre con la tecla Shift y sáltala con el Espacio";
                     break;
                 case "Point2":
-                    Explicacion.text = "Oh no, un enemigo delante. Apunta con el click derecho y disparale con el izquierdo";
+                    Explicacion.text = "Oh no, un enemigo delante. Apunta con el click derecho y dispárale con el izquierdo";
                     break;
                 case "Point3":
                     Explicacion.text = "Ya conoces la pistola, pero si prefieres el rifle pulsa 2. Si prefieres un cuchillo pulsa 4 y para recuperar la pistola pulsa 1";
                     break;
                 case "Point4":
-                    Explicacion.text = "Hay dos momias en la entrada. Lanzales una granada pulsando 3. Cuando tengas via libre, entra a la piramide";
+                    Explicacion.text = "Hay dos momias en la entrada, elimínalas. Cuando tengas vía libre, entra a la pirámide";
                     break;
 
                 case "Piramide":
@@ -66,15 +66,15 @@ public class Tutorial : MonoBehaviour
                     {
                         Destroy(jugador);
                         SceneManager.LoadScene("Scenes/Menu");
-                        
-                    } else
+
+                    }
+                    else
                     {
                         Explicacion.text = "Elimina a todos los enemigos antes de entrar";
                     }
 
-                        break;
+                    break;
             }
         }
-    }      
+    }
 }
-
